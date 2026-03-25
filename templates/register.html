@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-3">Register</h2>
+  <form method="post" class="card card-body">
+    {{ form.hidden_tag() }}
+    <label class="form-label">{{ form.name.label }}</label>
+    {{ form.name(class="form-control mb-3") }}
+
+    <label class="form-label">{{ form.email.label }}</label>
+    {{ form.email(class="form-control mb-3") }}
+
+    <label class="form-label">{{ form.password.label }}</label>
+    {{ form.password(class="form-control mb-3") }}
+
+    <label class="form-label">{{ form.confirm.label }}</label>
+    {{ form.confirm(class="form-control mb-3") }}
+
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+{% endblock %}

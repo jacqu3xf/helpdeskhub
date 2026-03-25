@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+{% block content %}
+  <div class="d-flex justify-content-between align-items-start mb-2">
+    <div>
+      <h2 class="mb-1">Ticket #{{ ticket.id }}: {{ ticket.title }}</h2>
+      <div class="text-muted">
+        {{ ticket.category }} • {{ ticket.priority }} •
+        Status: <span class="badge text-bg-secondary">{{ ticket.status }}</span> •
+        Assigned: <strong>{{ ticket.assignee.name if ticket.assignee else "—" }}</strong>
+      </div>
+    </div>
+
+    {% if current_user.role in ["rep","admin"] and not ticket.assigned_to %}
+      <form method="post">
+        <input type="hidden" name="action" value="claim">
+        <button class="btn btn-outline-success">Claim</button>
+      </form>
+    {% endif %}
+  </div>
+
+  <div class="card card-body mb-3">
+    <h5>Description</h5>
+    <p class="mb-0">{{ ticket.description }}</p>
+  </div>
+
+  {% if current_user.role in ["rep","admin"] %}
+    <div class="card card-body mb-3">
+      <h5 class="mb-3">Update Status</h5>
+      <form method="post">
+        {{ status_form.hidden_tag() }}
+        <input type="hidden" name="action" value="status">
+        {{ status_form.status(class="form-select mb-3") }}
+        {{ status_form.submit(class="btn btn-primary") }}
+        <div class="form-text mt-2">
+          Basic transition rules are enforced (no random jumps).
+        </div>
+      </form>
+    </div>
+  {% endif %}
+
+  <div class="card card-body mb-3">
+    <h5 class="mb-3">Add Comment</h5>
+    <form method="post">
+      {{ comment_form.hidden_tag() }}
+      <input type="hidden" name="action" value="comment">
+      {{ comment_form.body(class="form-control mb-3", rows="3") }}
+      {{ comment_form.submit(class="btn btn-outline-primary") }}
+    </form>
+  </div>
+
+  <h4>Comments</h4>
+  {% if ticket.comments %}
+    <ul class="list-group">
+      {% for c in ticket.comments %}
+        <li class="list-group-item">
+          <div class="small text-muted">
+            {{ c.created_at.strftime("%Y-%m-%d %H:%M") }} • {{ c.user.name }} ({{ c.user.role }})
+          </div>
+          <div>{{ c.body }}</div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="text-muted">No comments yet.</p>
+  {% endif %}
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block content %}
+  <h2 class="mb-3">Create Ticket</h2>
+  <form method="post" class="card card-body">
+    {{ form.hidden_tag() }}
+
+    <label class="form-label">{{ form.title.label }}</label>
+    {{ form.title(class="form-control mb-3") }}
+
+    <label class="form-label">{{ form.description.label }}</label>
+    {{ form.description(class="form-control mb-3", rows="4") }}
+
+    <div class="row">
+      <div class="col-md-6">
+        <label class="form-label">{{ form.category.label }}</label>
+        {{ form.category(class="form-control mb-3") }}
+      </div>
+      <div class="col-md-6">
+        <label class="form-label">{{ form.priority.label }}</label>
+        {{ form.priority(class="form-select mb-3") }}
+      </div>
+    </div>
+
+    {{ form.submit(class="btn btn-primary") }}
+  </form>
+{% endblock %}
