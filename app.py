@@ -215,5 +215,28 @@ def ticket_detail(ticket_id):
 def forbidden(e):
     return render_template("index.html", error="403 Forbidden: You don’t have access to that."), 403
 
+# Dashbaord added
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    if current_user.role in ["rep", "admin"]:
+        tickets = Ticket.query.all()
+    else:
+        tickets = Ticket.query.filter_by(created_by=current_user.id).all()
+
+    status_counts = {}
+    priority_counts = {}
+    for t in tickets:
+        status_counts[t.status] = status_counts.get(t.status, 0) + 1
+        priority_counts[t.priority] = priority_counts.get(t.priority, 0) + 1
+
+    return render_template(
+        "dashboard.html",
+        tickets=tickets,
+        status_counts=status_counts,
+        priority_counts=priority_counts,
+    )
+#end of dahsboard
+
 if __name__ == "__main__":
     app.run(debug=True)
