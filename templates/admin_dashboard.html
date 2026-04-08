@@ -1,0 +1,85 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-panel admin-hero p-4 p-lg-5 mb-4">
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3">
+    <div>
+      <span class="eyebrow">Separated admin workspace</span>
+      <h2 class="mb-2">Admin Control Panel</h2>
+      <p class="text-muted mb-0">Global oversight for users, tickets, and service health.</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a class="btn btn-outline-light" href="{{ url_for('admin_users') }}">Manage Users</a>
+      <a class="btn btn-light" href="{{ url_for('admin_tickets') }}">Review Tickets</a>
+    </div>
+  </div>
+</section>
+
+<div class="row g-3 mb-4">
+  <div class="col-md-4 col-xl-2"><div class="card shadow-sm border-0"><div class="card-body"><div class="small text-muted">Total Tickets</div><div class="display-6 fw-bold">{{ stats.total_tickets }}</div></div></div></div>
+  <div class="col-md-4 col-xl-2"><div class="card shadow-sm border-0"><div class="card-body"><div class="small text-muted">Open Work</div><div class="display-6 fw-bold">{{ stats.open_tickets }}</div></div></div></div>
+  <div class="col-md-4 col-xl-2"><div class="card shadow-sm border-0"><div class="card-body"><div class="small text-muted">Resolved</div><div class="display-6 fw-bold">{{ stats.resolved_tickets }}</div></div></div></div>
+  <div class="col-md-4 col-xl-2"><div class="card shadow-sm border-0"><div class="card-body"><div class="small text-muted">Users</div><div class="display-6 fw-bold">{{ stats.total_users }}</div></div></div></div>
+  <div class="col-md-4 col-xl-2"><div class="card shadow-sm border-0"><div class="card-body"><div class="small text-muted">Staff</div><div class="display-6 fw-bold">{{ stats.staff_users }}</div></div></div></div>
+  <div class="col-md-4 col-xl-2"><div class="card shadow-sm border-0"><div class="card-body"><div class="small text-muted">Unassigned</div><div class="display-6 fw-bold">{{ stats.unassigned_tickets }}</div></div></div></div>
+</div>
+
+<div class="row g-4">
+  <div class="col-lg-7">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-body">
+        <h5 class="card-title">Recent Tickets</h5>
+        <div class="table-responsive">
+          <table class="table align-middle mb-0">
+            <thead>
+              <tr><th>ID</th><th>Title</th><th>Status</th><th>Priority</th><th>Assigned</th></tr>
+            </thead>
+            <tbody>
+              {% for t in tickets %}
+              <tr>
+                <td>#{{ t.id }}</td>
+                <td><a href="{{ url_for('ticket_detail', ticket_id=t.id) }}">{{ t.title }}</a></td>
+                <td>{{ t.status }}</td>
+                <td>{{ t.priority }}</td>
+                <td>{{ t.assignee.name if t.assignee else 'Unassigned' }}</td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="card shadow-sm border-0 mb-4">
+      <div class="card-body">
+        <h5 class="card-title">Recent Users</h5>
+        <ul class="list-group list-group-flush">
+          {% for user in users %}
+          <li class="list-group-item d-flex justify-content-between align-items-center px-0">
+            <span>{{ user.name }}<br><small class="text-muted">{{ user.email }}</small></span>
+            <span class="badge text-bg-dark">{{ user.role }}</span>
+          </li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    <div class="card shadow-sm border-0">
+      <div class="card-body">
+        <h5 class="card-title">Ticket Distribution</h5>
+        <canvas id="adminStatusChart"></canvas>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const adminStatusLabels = {{ status_counts.keys() | list | tojson }};
+  const adminStatusData = {{ status_counts.values() | list | tojson }};
+  new Chart(document.getElementById("adminStatusChart"), {
+    type: "doughnut",
+    data: { labels: adminStatusLabels, datasets: [{ data: adminStatusData }] },
+    options: { responsive: true }
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
+  <div>
+    <div class="small text-muted mb-1">Ticket #{{ ticket.id }}</div>
+    <h2 class="mb-2">{{ ticket.title }}</h2>
+    <div class="d-flex flex-wrap gap-2">
+      <span class="badge text-bg-secondary">{{ ticket.status }}</span>
+      <span class="badge priority-badge priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
+      <span class="badge text-bg-light border">{{ ticket.category }}</span>
+      <span class="badge text-bg-light border">Assigned: {{ ticket.assignee.name if ticket.assignee else "Unassigned" }}</span>
+      <span class="badge text-bg-light border">Created by: {{ ticket.creator.name }}</span>
+    </div>
+  </div>
+
+  {% if current_user.role in ["rep","admin"] and not ticket.assigned_to %}
+    <form method="post">
+      <input type="hidden" name="action" value="claim">
+      <button class="btn btn-outline-success">Claim Ticket</button>
+    </form>
+  {% endif %}
+</div>
+
+<div class="row g-3">
+  <div class="col-lg-8">
+    <div class="card card-body shadow-sm mb-3 border-0">
+      <h5>Description</h5>
+      <p class="mb-0">{{ ticket.description }}</p>
+    </div>
+
+    <div class="card card-body shadow-sm border-0">
+      <h5 class="mb-3">Conversation</h5>
+      {% if ticket.comments %}
+        <div class="comment-thread">
+          {% for c in ticket.comments %}
+            <div class="comment-item mb-3 pb-3 border-bottom">
+              <div class="small text-muted mb-1">
+                {{ c.created_at.strftime("%Y-%m-%d %H:%M") }} • {{ c.user.name }} ({{ c.user.role }})
+              </div>
+              <div>{{ c.body }}</div>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No comments yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <div class="col-lg-4">
+    {% if current_user.role in ["rep","admin"] %}
+      <div class="card card-body shadow-sm border-0 mb-3">
+        <h5 class="mb-3">Update Status</h5>
+        <form method="post">
+          {{ status_form.hidden_tag() }}
+          <input type="hidden" name="action" value="status">
+          {{ status_form.status(class="form-select mb-3") }}
+          {{ status_form.submit(class="btn btn-primary w-100") }}
+          <div class="form-text mt-2">Transition rules are enforced to keep the workflow clean.</div>
+        </form>
+      </div>
+    {% endif %}
+
+    <div class="card card-body shadow-sm border-0">
+      <h5 class="mb-3">Add Comment</h5>
+      <form method="post">
+        {{ comment_form.hidden_tag() }}
+        <input type="hidden" name="action" value="comment">
+        {{ comment_form.body(class="form-control mb-3", rows="4", placeholder="Add troubleshooting notes, updates, or responses.") }}
+        {{ comment_form.submit(class="btn btn-outline-primary w-100") }}
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

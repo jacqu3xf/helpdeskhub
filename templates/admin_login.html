@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6">
+    <div class="card shadow-sm border-0 admin-login-card">
+      <div class="card-body p-4">
+        <span class="eyebrow">Separate admin access</span>
+        <h2 class="mb-2">Admin Portal Login</h2>
+        <p class="text-muted">This route is intentionally separate from the normal user experience.</p>
+        <div class="alert alert-info small">
+          Seed admin in README: <strong>admin@admin.com</strong> / <strong>admin123</strong>
+        </div>
+        <form method="post">
+          {{ form.hidden_tag() }}
+          <label class="form-label">{{ form.email.label }}</label>
+          {{ form.email(class="form-control mb-3", placeholder="admin@admin.com") }}
+
+          <label class="form-label">{{ form.password.label }}</label>
+          {{ form.password(class="form-control mb-3", placeholder="Enter admin password") }}
+
+          {{ form.submit(class="btn btn-info w-100") }}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

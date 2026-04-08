@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="hero-panel p-4 p-lg-5 mb-4">
+  <div class="row align-items-center g-4">
+    <div class="col-lg-8">
+      <span class="eyebrow">Flask • Bootstrap • SQLite</span>
+      <h1 class="display-6 fw-bold mt-2 mb-3">HelpDeskHub merged into one cleaner ticketing system.</h1>
+      <p class="lead text-muted mb-4">
+        This version combines both repositories, keeps the app in Flask/Bootstrap, and separates the admin experience from the general end-user UI.
+      </p>
+      <div class="d-flex gap-2 flex-wrap">
+        <a class="btn btn-primary" href="{{ url_for('init_db') }}">Initialize Database</a>
+        <a class="btn btn-outline-primary" href="{{ url_for('register') }}">Create User Account</a>
+        <a class="btn btn-outline-info" href="{{ url_for('admin_login') }}">Open Admin Portal</a>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card shadow-sm h-100">
+        <div class="card-body">
+          <h5 class="card-title">Admin access</h5>
+          <p class="small text-muted mb-2">Documented in the README and available from a separate admin login.</p>
+          <div class="login-creds">
+            <div><strong>Email:</strong> admin@admin.com</div>
+            <div><strong>Password:</strong> admin123</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="row g-3">
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">End-user improvements</h5>
+        <p class="card-text text-muted">Users now get a dashboard, searchable ticket list, clearer create-ticket flow, and more readable ticket details.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Rep queue upgrades</h5>
+        <p class="card-text text-muted">The queue now includes counters, card-based browsing, and one-click claim actions while preserving your existing ticket workflow.</p>
+      </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="card h-100 shadow-sm">
+      <div class="card-body">
+        <h5 class="card-title">Separated admin area</h5>
+        <p class="card-text text-muted">Admins get their own portal with system stats, role management, and global ticket oversight instead of sharing the same user-facing navigation.</p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

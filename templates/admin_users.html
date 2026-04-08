@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="m-0">User Management</h2>
+    <p class="text-muted mb-0">Promote users to rep/admin or revert access when needed.</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">Back to Admin Portal</a>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Current Role</th>
+            <th>Update Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for user in users %}
+          <tr>
+            <td>{{ user.name }}</td>
+            <td>{{ user.email }}</td>
+            <td><span class="badge text-bg-dark">{{ user.role }}</span></td>
+            <td>
+              <form method="post" class="d-flex gap-2 align-items-center flex-wrap">
+                {{ role_form.hidden_tag() }}
+                <input type="hidden" name="user_id" value="{{ user.id }}">
+                <select class="form-select form-select-sm w-auto" name="role">
+                  <option value="user" {% if user.role == 'user' %}selected{% endif %}>user</option>
+                  <option value="rep" {% if user.role == 'rep' %}selected{% endif %}>rep</option>
+                  <option value="admin" {% if user.role == 'admin' %}selected{% endif %}>admin</option>
+                </select>
+                <button class="btn btn-sm btn-primary" type="submit">Save</button>
+              </form>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}
