@@ -50,6 +50,7 @@ Open:
 *Note: This creates the database tables and seeds a default admin account:*
 
 **Default Admin:**
+<<<<<<< HEAD
 - Email: admin@admin.com
 - Password: admin123
 
@@ -59,3 +60,7 @@ Merged repository notes:
 - Added admin dashboard, admin user management, and admin ticket review pages.
 - Added ticket search/filter for end users and a card-style queue for reps/admins.
 - Added TRACKING COMMENT markers in Python code where repo merge changes were introduced.
+=======
+- Email: admin@example.com
+- Password: admin123
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d

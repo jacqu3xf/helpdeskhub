@@ -1,4 +1,18 @@
+<<<<<<< HEAD
 ﻿__pycache__/
 *.pyc
 instance/
 .env
+=======
+.venv/
+venv/
+__pycache__/
+*.pyc
+instance/
+*.db
+.env
+.env.*
+.DS_Store
+.idea/
+.vscode/
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d

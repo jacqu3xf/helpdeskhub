@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
+<<<<<<< HEAD
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
   <div>
     <h2 class="m-0">Dashboard</h2>
@@ -57,11 +58,69 @@
       <div class="card-body">
         <h5 class="card-title">Tickets by Priority</h5>
         <canvas id="priorityChart"></canvas>
+=======
+<div class="container py-4">
+  <h2 class="mb-4">Dashboard</h2>
+
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-md-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body">
+          <h5 class="card-title">Total Tickets</h5>
+          <p class="card-text fs-2 fw-bold">{{ tickets | length }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-warning">
+        <div class="card-body">
+          <h5 class="card-title">Open</h5>
+          <p class="card-text fs-2 fw-bold">{{ status_counts.get('Open', 0) }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-info">
+        <div class="card-body">
+          <h5 class="card-title">In Progress</h5>
+          <p class="card-text fs-2 fw-bold">{{ status_counts.get('In Progress', 0) }}</p>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="card text-white bg-success">
+        <div class="card-body">
+          <h5 class="card-title">Resolved</h5>
+          <p class="card-text fs-2 fw-bold">{{ status_counts.get('Resolved', 0) }}</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts -->
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Tickets by Status</h5>
+          <canvas id="statusChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="card-title">Tickets by Priority</h5>
+          <canvas id="priorityChart"></canvas>
+        </div>
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d
       </div>
     </div>
   </div>
 </div>
 
+<<<<<<< HEAD
 {% if tickets %}
 <div class="card shadow-sm border-0 mt-4">
   <div class="card-body">
@@ -98,22 +157,44 @@
 <script>
   const statusLabels = {{ status_counts.keys() | list | tojson }};
   const statusData = {{ status_counts.values() | list | tojson }};
+=======
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const statusLabels = {{ status_counts.keys() | list | tojson }};
+  const statusData   = {{ status_counts.values() | list | tojson }};
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d
   new Chart(document.getElementById("statusChart"), {
     type: "bar",
     data: {
       labels: statusLabels,
+<<<<<<< HEAD
       datasets: [{ label: "Tickets", data: statusData }]
+=======
+      datasets: [{ label: "Tickets", data: statusData,
+        backgroundColor: ["#0d6efd","#ffc107","#0dcaf0","#198754","#dc3545","#6c757d"]
+      }]
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d
     },
     options: { responsive: true, plugins: { legend: { display: false } } }
   });
 
   const priorityLabels = {{ priority_counts.keys() | list | tojson }};
+<<<<<<< HEAD
   const priorityData = {{ priority_counts.values() | list | tojson }};
+=======
+  const priorityData   = {{ priority_counts.values() | list | tojson }};
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d
   new Chart(document.getElementById("priorityChart"), {
     type: "bar",
     data: {
       labels: priorityLabels,
+<<<<<<< HEAD
       datasets: [{ label: "Tickets", data: priorityData }]
+=======
+      datasets: [{ label: "Tickets", data: priorityData,
+        backgroundColor: ["#198754","#0dcaf0","#ffc107","#dc3545"]
+      }]
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d
     },
     options: { responsive: true, plugins: { legend: { display: false } } }
   });

@@ -473,6 +473,7 @@ footer {
 }
  
 main.container { animation: fadeInUp .3s ease both; }
+<<<<<<< HEAD
 
 /* TRACKING COMMENT: merged-ui additions for richer end-user and separated admin experience */
 .hero-panel {
@@ -551,3 +552,5 @@ main.container { animation: fadeInUp .3s ease both; }
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
+=======
+>>>>>>> 65ec06f446bc79dc95fc6151c6636ae6e5bb4d4d
