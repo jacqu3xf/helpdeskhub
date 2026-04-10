@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="m-0">My Tickets</h2>
+    <p class="text-muted mb-0">Search, filter, and review your submitted requests.</p>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('ticket_new') }}">Create Ticket</a>
+</div>
+
+<div class="card card-body shadow-sm mb-3">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-6">
+      <label class="form-label">Search</label>
+      <input class="form-control" type="text" name="q" value="{{ query }}" placeholder="Search by title, description, or category">
+    </div>
+    <div class="col-md-3">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All statuses</option>
+        {% for status in statuses %}
+          <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3 d-flex gap-2">
+      <button class="btn btn-primary w-100" type="submit">Apply</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('tickets_list') }}">Reset</a>
+    </div>
+  </form>
+</div>
+
+{% if not tickets %}
+  <div class="empty-state text-center p-5 shadow-sm">
+    <h4>No tickets found</h4>
+    <p class="text-muted">Create your first ticket or adjust the search filters.</p>
+  </div>
+{% else %}
+  <div class="row g-3">
+    {% for t in tickets %}
+    <div class="col-lg-6">
+      <div class="card shadow-sm h-100 ticket-card">
+        <div class="card-body">
+          <div class="d-flex justify-content-between gap-3">
+            <div>
+              <div class="small text-muted mb-1">Ticket #{{ t.id }}</div>
+              <h5 class="card-title mb-1"><a class="text-decoration-none" href="{{ url_for('ticket_detail', ticket_id=t.id) }}">{{ t.title }}</a></h5>
+              <p class="text-muted mb-3 text-truncate-3">{{ t.description }}</p>
+            </div>
+            <span class="badge priority-badge priority-{{ t.priority|lower }} align-self-start">{{ t.priority }}</span>
+          </div>
+          <div class="d-flex gap-2 flex-wrap mb-3">
+            <span class="badge text-bg-secondary">{{ t.status }}</span>
+            <span class="badge text-bg-light border">{{ t.category }}</span>
+            <span class="badge text-bg-light border">Assigned: {{ t.assignee.name if t.assignee else 'Unassigned' }}</span>
+          </div>
+          <div class="small text-muted">Created {{ t.created_at.strftime("%Y-%m-%d %H:%M") }}</div>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
+  <div>
+    <h2 class="m-0">All Tickets</h2>
+    <p class="text-muted mb-0">Admin-wide ticket visibility with quick filtering.</p>
+  </div>
+  <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">Back to Admin Portal</a>
+</div>
+
+<div class="card card-body shadow-sm mb-3 border-0">
+  <form method="get" class="row g-3 align-items-end">
+    <div class="col-md-4">
+      <label class="form-label">Status</label>
+      <select class="form-select" name="status">
+        <option value="">All statuses</option>
+        {% for status in statuses %}
+          <option value="{{ status }}" {% if status_filter == status %}selected{% endif %}>{{ status }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">Priority</label>
+      <select class="form-select" name="priority">
+        <option value="">All priorities</option>
+        {% for priority in priorities %}
+          <option value="{{ priority }}" {% if priority_filter == priority %}selected{% endif %}>{{ priority }}</option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-4 d-flex gap-2">
+      <button class="btn btn-primary w-100" type="submit">Apply</button>
+      <a class="btn btn-outline-secondary" href="{{ url_for('admin_tickets') }}">Reset</a>
+    </div>
+  </form>
+</div>
+
+<div class="card shadow-sm border-0">
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Title</th>
+            <th>Status</th>
+            <th>Priority</th>
+            <th>Created By</th>
+            <th>Assigned To</th>
+            <th>Created</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for t in tickets %}
+          <tr>
+            <td>#{{ t.id }}</td>
+            <td><a href="{{ url_for('ticket_detail', ticket_id=t.id) }}">{{ t.title }}</a></td>
+            <td>{{ t.status }}</td>
+            <td>{{ t.priority }}</td>
+            <td>{{ t.creator.name }}</td>
+            <td>{{ t.assignee.name if t.assignee else 'Unassigned' }}</td>
+            <td>{{ t.created_at.strftime("%Y-%m-%d %H:%M") }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

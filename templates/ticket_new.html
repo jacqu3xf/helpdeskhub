@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-8">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <div>
+        <h2 class="m-0">Create Ticket</h2>
+        <p class="text-muted mb-0">Provide enough detail so support can move quickly.</p>
+      </div>
+    </div>
+
+    <form method="post" class="card card-body shadow-sm border-0">
+      {{ form.hidden_tag() }}
+
+      <label class="form-label">{{ form.title.label }}</label>
+      {{ form.title(class="form-control mb-3", placeholder="Example: Laptop cannot connect to VPN") }}
+
+      <label class="form-label">{{ form.description.label }}</label>
+      {{ form.description(class="form-control mb-3", rows="5", placeholder="Describe the issue, what changed, and anything already tried.") }}
+
+      <div class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">{{ form.category.label }}</label>
+          {{ form.category(class="form-control", placeholder="Network, Hardware, Access, Software...") }}
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">{{ form.priority.label }}</label>
+          {{ form.priority(class="form-select") }}
+        </div>
+      </div>
+
+      <div class="alert alert-light border mt-4 mb-0 small">
+        Tip: good tickets include the device, error message, impact, and urgency.
+      </div>
+
+      <div class="mt-4">{{ form.submit(class="btn btn-primary") }}</div>
+    </form>
+  </div>
+</div>
+{% endblock %}

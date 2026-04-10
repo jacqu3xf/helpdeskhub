@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ title or "HelpDeskHub" }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ url_for('static', filename='styles.css') }}" rel="stylesheet">
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark border-bottom border-secondary-subtle">
+      <div class="container">
+        <a class="navbar-brand fw-semibold" href="{{ url_for('index') }}">HelpDeskHub</a>
+
+        <div class="d-flex gap-2 align-items-center flex-wrap justify-content-end">
+          {% if current_user.is_authenticated %}
+            {% if current_user.role != 'admin' %}
+              <a class="btn btn-sm btn-outline-light" href="{{ url_for('dashboard') }}">Dashboard</a>
+              <a class="btn btn-sm btn-outline-light" href="{{ url_for('tickets_list') }}">Tickets</a>
+              {% if current_user.role in ["rep", "admin"] %}
+                <a class="btn btn-sm btn-outline-light" href="{{ url_for('tickets_queue') }}">Queue</a>
+              {% endif %}
+              <a class="btn btn-sm btn-primary" href="{{ url_for('ticket_new') }}">New Ticket</a>
+            {% else %}
+              <a class="btn btn-sm btn-outline-info" href="{{ url_for('admin_dashboard') }}">Admin Portal</a>
+              <a class="btn btn-sm btn-outline-light" href="{{ url_for('admin_users') }}">Users</a>
+              <a class="btn btn-sm btn-outline-light" href="{{ url_for('admin_tickets') }}">All Tickets</a>
+            {% endif %}
+            <span class="text-light small ms-2">
+              {{ current_user.name }} ({{ current_user.role }})
+            </span>
+            <a class="btn btn-sm btn-warning ms-2" href="{{ url_for('logout') }}">Logout</a>
+          {% else %}
+            <a class="btn btn-sm btn-outline-light" href="{{ url_for('login') }}">User Login</a>
+            <a class="btn btn-sm btn-outline-info" href="{{ url_for('admin_login') }}">Admin Login</a>
+            <a class="btn btn-sm btn-primary" href="{{ url_for('register') }}">Register</a>
+          {% endif %}
+        </div>
+      </div>
+    </nav>
+
+    <main class="container py-4">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+          {% for category, msg in messages %}
+            <div class="alert alert-{{ category }} mb-3 shadow-sm">{{ msg }}</div>
+          {% endfor %}
+        {% endif %}
+      {% endwith %}
+
+      {% if error %}
+        <div class="alert alert-danger">{{ error }}</div>
+      {% endif %}
+
+      {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>
