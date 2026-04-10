@@ -42,11 +42,13 @@ Setup
 
 **2) Run the app - from terminal**
  - python app.py
+
 *Note: The app runs at: http://127.0.0.1:5000*
 
 **3) Initialize the database (one-time per machine)**
 Open:
  - http://127.0.0.1:5000/init-db
+
 *Note: This creates the database tables and seeds a default admin account:*
 
 **Default Admin:**
