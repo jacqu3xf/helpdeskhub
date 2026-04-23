@@ -63,3 +63,4 @@ Merged repository notes:
 - Added TRACKING COMMENT markers in Python code where repo merge changes were introduced.
 
 David's Test Changes:
+- Made a change to the Readme file as a demonstration for my video about using GiHub Desktop for the project.
