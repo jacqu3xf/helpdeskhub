@@ -133,8 +133,11 @@ def login():
 
         # TRACKING COMMENT: admins get routed to a separate admin area instead of blending into the user UI.
         if user.role == "admin":
-            return redirect(url_for("admin_dashboard"))
-        return redirect(url_for("tickets_list"))
+            return redirect(url_for("admin_portal"))
+        elif user.role == "rep":
+            return redirect(url_for("tickets_queue"))
+        else:
+            return redirect(url_for("tickets_list"))
 
     return render_template("login.html", form=form, title="User Login")
 
@@ -369,7 +372,7 @@ def dashboard():
 
 @app.route("/admin")
 @login_required
-def admin_dashboard():
+def admin_portal():
     admin_required()
     tickets = Ticket.query.order_by(Ticket.created_at.desc()).all()
     users = User.query.order_by(User.role.desc(), User.name.asc()).all()

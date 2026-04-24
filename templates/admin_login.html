@@ -13,10 +13,10 @@
         <form method="post">
           {{ form.hidden_tag() }}
           <label class="form-label">{{ form.email.label }}</label>
-          {{ form.email(class="form-control mb-3", placeholder="admin@admin.com") }}
+          {{ form.email(class="form-control mb-3", placeholder="admin@admin.com", autocomplete="admin-username") }}
 
           <label class="form-label">{{ form.password.label }}</label>
-          {{ form.password(class="form-control mb-3", placeholder="Enter admin password") }}
+          {{ form.password(class="form-control mb-3", placeholder="Enter admin password"), autocomplete="admin-password" }}
 
           {{ form.submit(class="btn btn-info w-100") }}
         </form>
