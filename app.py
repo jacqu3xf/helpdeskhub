@@ -320,6 +320,16 @@ def ticket_detail(ticket_id):
                 if new_status not in allowed:
                     flash(f"Invalid transition: {ticket.status} → {new_status}", "danger")
                 else:
+                    # Log History - Updated
+                    history_comment = Comment(
+                        ticket_id=ticket.id,
+                        user_id=current_user.id,
+                        action="Status Changed",
+                        old_value = ticket.status,
+                        new_value = new_status
+                    )
+                    db.session.add(history_comment)
+                    # Updates the ticket status
                     ticket.status = new_status
                     db.session.commit()
                     flash(f"Status updated to {new_status}.", "success")

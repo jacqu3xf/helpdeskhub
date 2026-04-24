@@ -62,6 +62,30 @@
     {% endif %}
 
     <div class="card card-body shadow-sm border-0">
+      <h5 class="mb-3">History</h5>
+      {% if ticket.history_entries %}
+      <ul class="list-group">
+        {% for h in ticket.history_entries %}
+        <li class="list-group-item small">
+          <strong>{{h.action}}</strong>
+          {% if h.old_value or h.new_value %}
+            ({{h.old_value}} to {{h.new_value}})
+          {% endif %}
+          <br>
+          <span class="text-muted">
+            {{ h.timestamp.strftime("%Y-%m-%d %H:%M") }}
+            {% if h.user %} by {{ h.user.name}} {% endif %}
+          </span>
+        </li>
+        {% endfor %}
+      </ul> 
+      {% else %}
+      <p class="text-muted mb-0">No History Yet.</p>
+      {%end if %}
+    </div>
+
+    
+    <div class="card card-body shadow-sm border-0">
       <h5 class="mb-3">Add Comment</h5>
       <form method="post">
         {{ comment_form.hidden_tag() }}
