@@ -133,8 +133,11 @@ def login():
 
         # TRACKING COMMENT: admins get routed to a separate admin area instead of blending into the user UI.
         if user.role == "admin":
-            return redirect(url_for("admin_dashboard"))
-        return redirect(url_for("tickets_list"))
+            return redirect(url_for("admin_portal"))
+        elif user.role == "rep":
+            return redirect(url_for("tickets_queue"))
+        else:
+            return redirect(url_for("tickets_list"))
 
     return render_template("login.html", form=form, title="User Login")
 
@@ -320,6 +323,16 @@ def ticket_detail(ticket_id):
                 if new_status not in allowed:
                     flash(f"Invalid transition: {ticket.status} → {new_status}", "danger")
                 else:
+                    # Log History - Updated
+                    history_comment = Comment(
+                        ticket_id=ticket.id,
+                        user_id=current_user.id,
+                        action="Status Changed",
+                        old_value = ticket.status,
+                        new_value = new_status
+                    )
+                    db.session.add(history_comment)
+                    # Updates the ticket status
                     ticket.status = new_status
                     db.session.commit()
                     flash(f"Status updated to {new_status}.", "success")
@@ -359,7 +372,7 @@ def dashboard():
 
 @app.route("/admin")
 @login_required
-def admin_dashboard():
+def admin_portal():
     admin_required()
     tickets = Ticket.query.order_by(Ticket.created_at.desc()).all()
     users = User.query.order_by(User.role.desc(), User.name.asc()).all()
