@@ -3,7 +3,7 @@ from flask_login import LoginManager, login_user, login_required, logout_user, c
 from sqlalchemy import or_
 
 from models import db, User, Ticket, Comment
-from forms import RegisterForm, LoginForm, TicketForm, CommentForm, StatusForm, UserRoleForm
+from forms import RegisterForm, LoginForm, TicketForm, CommentForm, StatusForm, UserRoleForm, AdminCreateUserForm
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "dev-change-me"
@@ -426,6 +426,29 @@ def admin_tickets():
         statuses=list(ALLOWED_TRANSITIONS.keys()),
         priorities=["Low", "Medium", "High", "Urgent"],
     )
+
+
+@app.route("/admin/create-user", methods=["GET", "POST"])
+@login_required
+def admin_create_user():
+    admin_required()
+
+    form = AdminCreateUserForm()
+
+    if form.validate_on_submit():
+        user = User(
+            name=form.name.data.strip(),
+            email=form.email.data.lower().strip(),
+            role=form.role.data
+        )
+        user.set_password(form.password.data)
+
+        db.session.add(user)
+        db.session.commit()
+
+        flash("User created successfully.", "success")
+        return redirect(url_for("admin_dashboard"))
+    return render_template("admin_users.html", form=form)
 
 
 @app.errorhandler(403)
