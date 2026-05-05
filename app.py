@@ -2,7 +2,7 @@ from flask import Flask, render_template, redirect, url_for, flash, request, abo
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
 
-from models import db, User, Ticket, Comment
+from models import db, User, Ticket, Comment, TicketHistory
 from forms import RegisterForm, LoginForm, TicketForm, CommentForm, StatusForm, UserRoleForm, AdminCreateUserForm
 
 app = Flask(__name__)
@@ -324,7 +324,7 @@ def ticket_detail(ticket_id):
                     flash(f"Invalid transition: {ticket.status} → {new_status}", "danger")
                 else:
                     # Log History - Updated
-                    history_comment = Comment(
+                    history_comment = TicketHistory(
                         ticket_id=ticket.id,
                         user_id=current_user.id,
                         action="Status Changed",
@@ -372,7 +372,7 @@ def dashboard():
 
 @app.route("/admin")
 @login_required
-def admin_portal():
+def admin_dashboard():
     admin_required()
     tickets = Ticket.query.order_by(Ticket.created_at.desc()).all()
     users = User.query.order_by(User.role.desc(), User.name.asc()).all()

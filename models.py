@@ -57,13 +57,13 @@ class Comment(db.Model):
 
 # Added New Class to Keep Track of Ticket History
 class TicketHistory(db.Model):
-    id = db.Column(db.Ineger, primary_key=True)
+    id = db.Column(db.Integer, primary_key=True)
     ticket_id = db.Column(db.Integer, db.ForeignKey("ticket.id"), nullable=False)
-    user_id = db.Column(db.Ineger, db.ForgeignKey("user.id"), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
     action = db.Column(db.String(255), nullable=False)
-    old_value = db.Column(db.string(255), nullable=False)
-    new_value = db.Column(db.string(255), nullable=False)
+    old_value = db.Column(db.String(255), nullable=False)
+    new_value = db.Column(db.String(255), nullable=False)
 
     # createing a digtial timestamp of the ticket time
     timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
