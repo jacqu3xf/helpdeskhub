@@ -57,3 +57,14 @@ class UserRoleForm(FlaskForm):
         validators=[DataRequired()],
     )
     submit = SubmitField("Save Role")
+
+class AdminCreateUserForm(FlaskForm):
+    name = StringField("Name", validators=[DataRequired(), Length(min=2, max=120)])
+    email = StringField("Email", validators=[DataRequired(), Email()])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
+    role = SelectField(
+        "Role",
+        choices=[("user", "User"), ("rep", "Rep"), ("admin", "Admin")],
+        validators=[DataRequired()],
+    )
+    submit = SubmitField("Create User")

@@ -56,7 +56,7 @@ class Comment(db.Model):
     user = db.relationship("User")
 
 
-class StatusHistory(db.Model):
+    class StatusHistory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
 
     ticket_id = db.Column(db.Integer, db.ForeignKey("ticket.id"), nullable=False)
@@ -69,4 +69,3 @@ class StatusHistory(db.Model):
 
     ticket = db.relationship("Ticket", backref="status_history")
     user = db.relationship("User")
-    
