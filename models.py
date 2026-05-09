@@ -55,18 +55,17 @@ class Comment(db.Model):
     ticket = db.relationship("Ticket", backref="comments")
     user = db.relationship("User")
 
-# Added New Class to Keep Track of Ticket History
-class TicketHistory(db.Model):
-    id = db.Column(db.Ineger, primary_key=True)
+
+    class StatusHistory(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+
     ticket_id = db.Column(db.Integer, db.ForeignKey("ticket.id"), nullable=False)
-    user_id = db.Column(db.Ineger, db.ForgeignKey("user.id"), nullable=False)
+    old_status = db.Column(db.String(50), nullable=False)
+    new_status = db.Column(db.String(50), nullable=False)
 
-    action = db.Column(db.String(255), nullable=False)
-    old_value = db.Column(db.string(255), nullable=False)
-    new_value = db.Column(db.string(255), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
 
-    # createing a digtial timestamp of the ticket time
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-    ticket = db.relationship("Ticket", backref="history_entries")
-    user = db.relationship("User", backref="history_entries")
+    ticket = db.relationship("Ticket", backref="status_history")
+    user = db.relationship("User")

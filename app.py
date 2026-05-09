@@ -2,8 +2,9 @@ from flask import Flask, render_template, redirect, url_for, flash, request, abo
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
 
-from models import db, User, Ticket, Comment
+from models import db, User, Ticket, Comment, StatusHistory
 from forms import RegisterForm, LoginForm, TicketForm, CommentForm, StatusForm, UserRoleForm, AdminCreateUserForm
+
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "dev-change-me"
@@ -323,18 +324,18 @@ def ticket_detail(ticket_id):
                 if new_status not in allowed:
                     flash(f"Invalid transition: {ticket.status} → {new_status}", "danger")
                 else:
-                    # Log History - Updated
-                    history_comment = Comment(
-                        ticket_id=ticket.id,
-                        user_id=current_user.id,
-                        action="Status Changed",
-                        old_value = ticket.status,
-                        new_value = new_status
-                    )
-                    db.session.add(history_comment)
-                    # Updates the ticket status
+
                     ticket.status = new_status
+                    history = StatusHistory(
+
+                        ticket_id=ticket.id,
+                        old_status=old_status,
+                        new_status=new_status,
+                        user_id=current_user.id
+                    )
+                    db.session.add(history) 
                     db.session.commit()
+
                     flash(f"Status updated to {new_status}.", "success")
             return redirect(url_for("ticket_detail", ticket_id=ticket.id))
 
@@ -346,6 +347,7 @@ def ticket_detail(ticket_id):
         ticket=ticket,
         comment_form=comment_form,
         status_form=status_form,
+        history=ticket.status_history
     )
 
 
