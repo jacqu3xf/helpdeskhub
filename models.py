@@ -65,8 +65,7 @@ class TicketHistory(db.Model):
     old_value = db.Column(db.String(255), nullable=False)
     new_value = db.Column(db.String(255), nullable=False)
 
-    # createing a digtial timestamp of the ticket time
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow, nullable=False)
 
-    ticket = db.relationship("Ticket", backref="history_entries")
-    user = db.relationship("User", backref="history_entries")
+    ticket = db.relationship("Ticket", backref="status_history")
+    user = db.relationship("User")

@@ -5,6 +5,7 @@ from sqlalchemy import or_
 from models import db, User, Ticket, Comment, TicketHistory
 from forms import RegisterForm, LoginForm, TicketForm, CommentForm, StatusForm, UserRoleForm, AdminCreateUserForm
 
+
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "dev-change-me"
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpdeskhub.db"
@@ -326,15 +327,13 @@ def ticket_detail(ticket_id):
                     # Log History - Updated
                     history_comment = TicketHistory(
                         ticket_id=ticket.id,
-                        user_id=current_user.id,
-                        action="Status Changed",
-                        old_value = ticket.status,
-                        new_value = new_status
+                        old_status=old_status,
+                        new_status=new_status,
+                        user_id=current_user.id
                     )
-                    db.session.add(history_comment)
-                    # Updates the ticket status
-                    ticket.status = new_status
+                    db.session.add(history) 
                     db.session.commit()
+
                     flash(f"Status updated to {new_status}.", "success")
             return redirect(url_for("ticket_detail", ticket_id=ticket.id))
 
@@ -346,6 +345,7 @@ def ticket_detail(ticket_id):
         ticket=ticket,
         comment_form=comment_form,
         status_form=status_form,
+        history=ticket.status_history
     )
 
 

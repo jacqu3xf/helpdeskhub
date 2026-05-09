@@ -44,6 +44,17 @@
       {% else %}
         <p class="text-muted mb-0">No comments yet.</p>
       {% endif %}
+      <h5 class="mt-4">Status History</h5>
+
+<ul>
+  {% for h in history %}
+    <li>
+      {{ h.old_status }} → {{ h.new_status }} 
+      (User ID: {{ h.user_id }}) 
+      at {{ h.created_at }}
+    </li>
+  {% endfor %}
+</ul>
     </div>
   </div>
 
