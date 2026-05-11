@@ -56,8 +56,8 @@
           <p class="card-text text-muted text-truncate-3 mt-2">{{ t.description or 'No description provided.' }}</p>
 
           <div class="d-flex justify-content-between flex-wrap gap-2 mt-2 mb-3">
-            <span class="badge text-bg-secondary">{{ t.status }}</span>
-            <span class="badge text-bg-light border">{{ t.category }}</span>
+            <span class="badge {{ status_badge_class(t.status) }}">{{ t.status }}</span>
+            <span class="badge {{ category_badge_class(t.category) }}">{{ t.category }}</span>
           </div>
 
           <div class="small text-muted mb-3">Assigned: {{ t.assignee.name if t.assignee else 'Unassigned' }}</div>

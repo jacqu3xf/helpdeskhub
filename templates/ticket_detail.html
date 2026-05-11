@@ -5,9 +5,9 @@
     <div class="small text-muted mb-1">Ticket #{{ ticket.id }}</div>
     <h2 class="mb-2">{{ ticket.title }}</h2>
     <div class="d-flex flex-wrap gap-2">
-      <span class="badge text-bg-secondary">{{ ticket.status }}</span>
+      <span class="badge {{ status_badge_class(ticket.status) }}">{{ ticket.status }}</span>
       <span class="badge priority-badge priority-{{ ticket.priority|lower }}">{{ ticket.priority }}</span>
-      <span class="badge text-bg-light border">{{ ticket.category }}</span>
+      <span class="badge {{ category_badge_class(ticket.category) }}">{{ ticket.category }}</span>
       <span class="badge text-bg-light border">Assigned: {{ ticket.assignee.name if ticket.assignee else "Unassigned" }}</span>
       <span class="badge text-bg-light border">Created by: {{ ticket.creator.name }}</span>
     </div>
@@ -44,17 +44,6 @@
       {% else %}
         <p class="text-muted mb-0">No comments yet.</p>
       {% endif %}
-      <h5 class="mt-4">Status History</h5>
-
-<ul>
-  {% for h in history %}
-    <li>
-      {{ h.old_status }} → {{ h.new_status }} 
-      (User ID: {{ h.user_id }}) 
-      at {{ h.created_at }}
-    </li>
-  {% endfor %}
-</ul>
     </div>
   </div>
 
@@ -67,35 +56,11 @@
           <input type="hidden" name="action" value="status">
           {{ status_form.status(class="form-select mb-3") }}
           {{ status_form.submit(class="btn btn-primary w-100") }}
-          <div class="form-text mt-2">Transition rules are enforced to keep the workflow clean.</div>
+          <div class="form-text mt-2">Only valid next statuses are shown. Waiting on User can now move directly to Resolved or Closed.</div>
         </form>
       </div>
     {% endif %}
 
-    <div class="card card-body shadow-sm border-0">
-      <h5 class="mb-3">History</h5>
-      {% if ticket.history_entries %}
-      <ul class="list-group">
-        {% for h in ticket.history_entries %}
-        <li class="list-group-item small">
-          <strong>{{h.action}}</strong>
-          {% if h.old_value or h.new_value %}
-            ({{h.old_value}} to {{h.new_value}})
-          {% endif %}
-          <br>
-          <span class="text-muted">
-            {{ h.timestamp.strftime("%Y-%m-%d %H:%M") }}
-            {% if h.user %} by {{ h.user.name}} {% endif %}
-          </span>
-        </li>
-        {% endfor %}
-      </ul> 
-      {% else %}
-      <p class="text-muted mb-0">No History Yet.</p>
-      {%endif %}
-    </div>
-
-    
     <div class="card card-body shadow-sm border-0">
       <h5 class="mb-3">Add Comment</h5>
       <form method="post">
@@ -104,6 +69,23 @@
         {{ comment_form.body(class="form-control mb-3", rows="4", placeholder="Add troubleshooting notes, updates, or responses.") }}
         {{ comment_form.submit(class="btn btn-outline-primary w-100") }}
       </form>
+    </div>
+
+    <div class="card card-body shadow-sm border-0 mt-3">
+      <h5 class="mb-3">Status History</h5>
+      {% if history %}
+        <div class="timeline-list">
+          {% for h in history %}
+            <div class="small border-bottom pb-2 mb-2">
+              <div><span class="badge {{ status_badge_class(h.old_status) }}">{{ h.old_status }}</span> → <span class="badge {{ status_badge_class(h.new_status) }}">{{ h.new_status }}</span></div>
+              <div class="text-muted">{{ h.created_at.strftime("%Y-%m-%d %H:%M") }} by {{ h.user.name }}</div>
+              {% if h.note %}<div class="text-muted">{{ h.note }}</div>{% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="text-muted mb-0">No status changes recorded yet.</p>
+      {% endif %}
     </div>
   </div>
 </div>

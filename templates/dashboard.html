@@ -82,7 +82,7 @@
           <tr>
             <td>#{{ t.id }}</td>
             <td><a href="{{ url_for('ticket_detail', ticket_id=t.id) }}">{{ t.title }}</a></td>
-            <td>{{ t.status }}</td>
+            <td><span class="badge {{ status_badge_class(t.status) }}">{{ t.status }}</span></td>
             <td>{{ t.priority }}</td>
             <td>{{ t.assignee.name if t.assignee else 'Unassigned' }}</td>
           </tr>

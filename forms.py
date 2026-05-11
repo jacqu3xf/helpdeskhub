@@ -1,6 +1,7 @@
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField, TextAreaField, SelectField, SubmitField, HiddenField
 from wtforms.validators import DataRequired, Email, Length, EqualTo
+from models import PRIORITIES, STATUSES, ROLES
 
 
 class RegisterForm(FlaskForm):
@@ -20,11 +21,8 @@ class LoginForm(FlaskForm):
 class TicketForm(FlaskForm):
     title = StringField("Title", validators=[DataRequired(), Length(min=3, max=200)])
     description = TextAreaField("Description", validators=[DataRequired(), Length(min=5)])
-    category = StringField("Category")
-    priority = SelectField(
-        "Priority",
-        choices=[("Low", "Low"), ("Medium", "Medium"), ("High", "High"), ("Urgent", "Urgent")],
-    )
+    category = StringField("Category", validators=[Length(max=80)])
+    priority = SelectField("Priority", choices=[(p, p) for p in PRIORITIES], validators=[DataRequired()])
     submit = SubmitField("Submit Ticket")
 
 
@@ -34,37 +32,19 @@ class CommentForm(FlaskForm):
 
 
 class StatusForm(FlaskForm):
-    status = SelectField(
-        "Status",
-        choices=[
-            ("New", "New"),
-            ("Open", "Open"),
-            ("In Progress", "In Progress"),
-            ("Waiting on User", "Waiting on User"),
-            ("Resolved", "Resolved"),
-            ("Closed", "Closed"),
-        ],
-    )
+    status = SelectField("Status", choices=[(s, s) for s in STATUSES], validators=[DataRequired()])
     submit = SubmitField("Update Status")
 
 
-# TRACKING COMMENT: added for the separated admin console so role management stays in Flask-WTF/Bootstrap.
 class UserRoleForm(FlaskForm):
     user_id = HiddenField("User ID", validators=[DataRequired()])
-    role = SelectField(
-        "Role",
-        choices=[("user", "user"), ("rep", "rep"), ("admin", "admin")],
-        validators=[DataRequired()],
-    )
+    role = SelectField("Role", choices=[(r, r) for r in ROLES], validators=[DataRequired()])
     submit = SubmitField("Save Role")
+
 
 class AdminCreateUserForm(FlaskForm):
     name = StringField("Name", validators=[DataRequired(), Length(min=2, max=120)])
     email = StringField("Email", validators=[DataRequired(), Email()])
-    password = PasswordField("Password", validators=[DataRequired(), Length(min=6)])
-    role = SelectField(
-        "Role",
-        choices=[("user", "User"), ("rep", "Rep"), ("admin", "Admin")],
-        validators=[DataRequired()],
-    )
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=6, max=128)])
+    role = SelectField("Role", choices=[("user", "User"), ("rep", "Rep"), ("admin", "Admin")], validators=[DataRequired()])
     submit = SubmitField("Create User")

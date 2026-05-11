@@ -263,12 +263,12 @@ textarea.form-control { min-height: 110px; resize: vertical; }
 }
  
 /*----- Status ----- */
-.badge-status-new            { background: #e0e7ff; color: #3730a3; }
-.badge-status-open           { background: #fef3c7; color: #92400e; }
-.badge-status-inprogress     { background: #dbeafe; color: #1e40af; }
-.badge-status-waitingonuser  { background: #fce7f3; color: #9d174d; }
-.badge-status-resolved       { background: #d1fae5; color: #065f46; }
-.badge-status-closed         { background: #f1f5f9; color: #475569; }
+.badge-status-new            { background: #ef4444; color: #fff; }
+.badge-status-open           { background: #f59e0b; color: #fff; }
+.badge-status-inprogress     { background: #3b82f6; color: #fff; }
+.badge-status-waitingonuser  { background: #10b981; color: #fff; }
+.badge-status-resolved       { background: #8b5cf6; color: #fff; }
+.badge-status-closed         { background: #000; color: #fff; }
  
 /*---- Priority ----*/
 .badge-priority-low    { background: #d1fae5; color: #065f46; }
@@ -551,3 +551,53 @@ main.container { animation: fadeInUp .3s ease both; }
   margin-bottom: 0 !important;
   padding-bottom: 0 !important;
 }
+
+/* Status badges requested for ticket lifecycle visibility */
+.status-badge {
+  border-radius: 999px;
+  padding: .5rem .75rem;
+  font-weight: 700;
+}
+.status-new { background: #ef4444; color: #fff; }
+.status-open { background: #f59e0b; color: #fff; }
+.status-inprogress { background: #3b82f6; color: #fff; }
+.status-waitingonuser { background: #10b981; color: #fff; }
+.status-resolved { background: #8b5cf6; color: #fff; }
+.status-closed { background: #000; color: #fff; }
+
+/* Category badges mirror the visual clarity of priority/status badges */
+.category-badge {
+  border-radius: 999px;
+  padding: .5rem .75rem;
+  font-weight: 700;
+  border: 1px solid rgba(15, 23, 42, .08);
+}
+.category-general { background: #f1f5f9; color: #334155; }
+.category-hardware { background: #e0e7ff; color: #3730a3; }
+.category-software { background: #cffafe; color: #155e75; }
+.category-network { background: #ccfbf1; color: #115e59; }
+.category-email { background: #fce7f3; color: #9d174d; }
+.category-access { background: #ede9fe; color: #5b21b6; }
+.category-printer { background: #ffedd5; color: #9a3412; }
+.category-security { background: #fee2e2; color: #991b1b; }
+
+
+/* Final status badge override: all status labels use white text.
+   Kept at the end of the stylesheet so it wins over Bootstrap badge defaults. */
+.badge.status-badge,
+.status-badge,
+.badge-status-new,
+.badge-status-open,
+.badge-status-inprogress,
+.badge-status-waitingonuser,
+.badge-status-resolved,
+.badge-status-closed {
+  color: #ffffff !important;
+}
+
+.badge.status-new, .status-new, .badge-status-new { background-color: #ef4444 !important; color: #ffffff !important; }
+.badge.status-open, .status-open, .badge-status-open { background-color: #f59e0b !important; color: #ffffff !important; }
+.badge.status-inprogress, .status-inprogress, .badge-status-inprogress { background-color: #3b82f6 !important; color: #ffffff !important; }
+.badge.status-waitingonuser, .status-waitingonuser, .badge-status-waitingonuser { background-color: #10b981 !important; color: #ffffff !important; }
+.badge.status-resolved, .status-resolved, .badge-status-resolved { background-color: #8b5cf6 !important; color: #ffffff !important; }
+.badge.status-closed, .status-closed, .badge-status-closed { background-color: #000000 !important; color: #ffffff !important; }
