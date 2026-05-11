@@ -222,23 +222,6 @@ This does not replace full manual testing, but it gives a fast confidence check 
 
 ---
 
-## 🧭 Suggested Manual Testing
-
-After the smoke test passes, manually confirm:
-
-1. Register a regular user.
-2. Submit a ticket with category and priority.
-3. Log in as a rep/admin.
-4. Claim the ticket.
-5. Add a comment.
-6. Move the ticket through each status.
-7. Confirm badge colors display properly.
-8. Confirm ticket history shows the status updates.
-9. Log in as admin and create a test user.
-10. Confirm admin pages are accessible only to admins.
-
----
-
 ## 📝 Latest Merge Notes
 
 This model combines the extracted branch work into one definitive testing version.
@@ -255,8 +238,6 @@ Major updates included:
 - Added status transition restrictions
 - Added status and category badge styling
 - Added smoke testing for core functionality
-
----
 
 ## 📌 Project Status
 
