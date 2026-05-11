@@ -44,7 +44,7 @@ HelpDeskHub keeps support work centralized instead of letting requests get lost 
 | **In Progress** | Blue |
 | **Waiting on User** | Green |
 | **Resolved** | Purple |
-| **Closed** | Black with white text |
+| **Closed** | Black |
 
 ---
 
