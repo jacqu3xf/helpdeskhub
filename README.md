@@ -1,64 +1,272 @@
-HelpDeskHub (Flask + Bootstrap Ticketing System)
+# 🎫 HelpDeskHub
 
-HelpDeskHub is a basic ticketing/helpdesk web app scaffold built with Flask, Bootstrap, SQLAlchemy (SQLite), Flask-Login, and Flask-WTF.
+**HelpDeskHub** is a lightweight Flask + Bootstrap ticketing system designed for a small IT/helpdesk environment. It gives end users a clean place to submit support requests while reps and admins can manage ticket queues, ownership, status changes, comments, and resolution history.
 
+---
 
-It supports:
- - User registration + login + logout
- - Roles (user / rep / admin)
- - Users can create tickets, view their own tickets, and comment
- - Reps/Admins can view the queue, claim tickets, update status (with basic transition rules), and comment
- - Simple Bootstrap UI
+## 🚀 Project Overview
 
-Tech Stack:
- - Python + Flask
- - Flask-SQLAlchemy (SQLite for local dev)
- - Flask-Login (sessions)
- - Flask-WTF (forms + CSRF protection)
- - Bootstrap 5 (CDN)
+HelpDeskHub keeps support work centralized instead of letting requests get lost in email, chat, or hallway conversations. The system supports three main roles:
 
-Folder Structure:
+| Role | Purpose |
+|---|---|
+| **User** | Submit tickets, view their own tickets, and add comments. |
+| **Rep** | View the support queue, claim tickets, update statuses, and respond to users. |
+| **Admin** | Access the admin portal, manage users, review all tickets, and oversee the system. |
+
+---
+
+## ✨ Current Features
+
+- User registration, login, and logout
+- Role-based access for **User**, **Rep**, and **Admin**
+- Dedicated admin login and admin portal
+- Admin dashboard with system-level visibility
+- Admin user-management page with account creation and role updates
+- End-user ticket creation with title, description, category, and priority
+- User-facing **My Tickets** page
+- Rep/admin ticket queue with claim functionality
+- Ticket comments for communication and updates
+- Ticket status history/audit trail
+- Controlled ticket status transitions
+- Search and filtering for tickets
+- Bootstrap-based responsive interface
+- Visual badges for priority, category, and status
+
+---
+
+## 🎨 Ticket Status Colors
+
+| Status | Badge Color |
+|---|---|
+| **New** | Red |
+| **Open** | Orange |
+| **In Progress** | Blue |
+| **Waiting on User** | Green |
+| **Resolved** | Purple |
+| **Closed** | Black with white text |
+
+---
+
+## 🔁 Ticket Workflow
+
+The ticket workflow is flexible enough for testing but still has obvious restrictions so tickets do not jump around randomly.
+
+Typical flow:
+
+```text
+New → Open → In Progress → Waiting on User → Resolved → Closed
+```
+
+Supported workflow behavior:
+
+- New tickets start as **New**.
+- Reps/admins can claim a ticket, which moves it to **Open**.
+- Reps/admins can move work through **In Progress**, **Waiting on User**, **Resolved**, and **Closed**.
+- Tickets waiting on the user can still be resolved or closed by a rep/admin.
+- Status changes are written into ticket history for tracking.
+
+---
+
+## 🧰 Tech Stack
+
+| Layer | Tool |
+|---|---|
+| Backend | Python + Flask |
+| Database | SQLite with Flask-SQLAlchemy |
+| Authentication | Flask-Login |
+| Forms | Flask-WTF |
+| Frontend | Bootstrap 5 + custom CSS |
+| Testing | Flask test client smoke test |
+
+---
+
+## 📁 Project Structure
+
+```text
 helpdeskhub/
- - app.py
- - models.py
- - forms.py
- - requirements.txt
- - templates/
- - static/
+├── app.py                         # Main Flask routes, app config, workflow logic
+├── models.py                      # SQLAlchemy database models
+├── forms.py                       # Flask-WTF form definitions
+├── requirements.txt               # Python dependencies
+├── smoke_test.py                  # Automated functionality check
+├── TESTING_GUIDE.md               # Manual testing checklist
+├── MERGE_NOTES.md                 # Notes from branch consolidation
+├── CHANGE_NOTES_STATUS_BADGES.md  # Notes for latest status/category badge update
+├── static/
+│   └── styles.css                 # Custom UI styling and badge colors
+└── templates/
+    ├── base.html
+    ├── index.html
+    ├── login.html
+    ├── register.html
+    ├── dashboard.html
+    ├── ticket_new.html
+    ├── ticket_detail.html
+    ├── tickets_list.html
+    ├── tickets_queue.html
+    ├── admin_login.html
+    ├── admin_dashboard.html
+    ├── admin_users.html
+    └── admin_tickets.html
+```
 
------------------------
-Setup
-1) Create and activate a virtual environment and install dependencies:**
+---
 
-**Windows (CMD) - run terminal in root folder**
- - python -m venv .venv
- - .venv\\Scripts\\activate
- - pip install -r requirements.txt
+## ⚙️ Setup Instructions
 
-**UNIX - terminal in folder**
- - python3 -m venv .venv
- - source .venv/bin/activate
- - pip install -r requirements.txt
+### 1. Create and activate a virtual environment
 
-**2) Run the app - from terminal**
- - python app.py
+**Windows CMD or PowerShell:**
 
-*Note: The app runs at: http://127.0.0.1:5000*
+```bash
+python -m venv .venv
+.venv\Scripts\activate
+```
 
-**3) Initialize the database (one-time per machine)**
-Open:
- - http://127.0.0.1:5000/init-db
+**macOS/Linux:**
 
-*Note: This creates the database tables and seeds a default admin account:*
+```bash
+python3 -m venv .venv
+source .venv/bin/activate
+```
 
-**Default Admin:**
-- Email: admin@admin.com
-- Password: admin123
+### 2. Install dependencies
 
+```bash
+pip install -r requirements.txt
+```
 
-Merged repository notes:
-- Added a dedicated /admin/login route and separate admin portal UI.
-- Added admin dashboard, admin user management, and admin ticket review pages.
-- Added ticket search/filter for end users and a card-style queue for reps/admins.
-- Added TRACKING COMMENT markers in Python code where repo merge changes were introduced.
+### 3. Initialize the database
+
+Start the app first:
+
+```bash
+python app.py
+```
+
+Then open this route in your browser:
+
+```text
+http://127.0.0.1:5000/init-db
+```
+
+This creates the SQLite database tables and seeds the default admin account.
+
+---
+
+## 🔐 Default Admin Login
+
+```text
+Admin URL: http://127.0.0.1:5000/admin/login
+Email: admin@admin.com
+Password: admin123
+```
+
+---
+
+## ▶️ Running the App
+
+```bash
+python app.py
+```
+
+Then open:
+
+```text
+http://127.0.0.1:5000
+```
+
+---
+
+## ✅ Running the Smoke Test
+
+```bash
+python smoke_test.py
+```
+
+Expected result:
+
+```text
+ALL TESTS PASSED
+```
+
+The smoke test performs a quick automated check of the main app flow. It uses a temporary in-memory test database, so it does **not** modify your real local database file.
+
+---
+
+## 🧪 What the Smoke Test Checks
+
+The smoke test verifies that the most important pieces of the app still work after code changes:
+
+- Public pages load correctly
+- Default admin seeding works
+- Test user and test rep accounts can be created
+- User login works
+- User can create a ticket
+- New ticket starts with **New** status
+- Rep login works
+- Rep can access the queue
+- Rep can claim a ticket
+- Claiming a ticket changes status from **New** to **Open**
+- Ticket history records the claim/status change
+- Rep can move ticket to **In Progress**
+- Rep can move ticket to **Waiting on User**
+- Rep can move ticket from **Waiting on User** to **Resolved**
+- Rep can move ticket from **Resolved** to **Closed**
+- Admin login works
+- Admin dashboard, users, tickets, and dashboard pages load
+- Admin can create a new rep user
+
+This does not replace full manual testing, but it gives a fast confidence check before committing or presenting the project.
+
+---
+
+## 🧭 Suggested Manual Testing
+
+After the smoke test passes, manually confirm:
+
+1. Register a regular user.
+2. Submit a ticket with category and priority.
+3. Log in as a rep/admin.
+4. Claim the ticket.
+5. Add a comment.
+6. Move the ticket through each status.
+7. Confirm badge colors display properly.
+8. Confirm ticket history shows the status updates.
+9. Log in as admin and create a test user.
+10. Confirm admin pages are accessible only to admins.
+
+---
+
+## 📝 Latest Merge Notes
+
+This model combines the extracted branch work into one definitive testing version.
+
+Major updates included:
+
+- Consolidated backend, database, admin, and UI changes
+- Cleaned duplicate or conflicting route logic
+- Removed unresolved merge conflict markers
+- Added safe database initialization behavior
+- Added dedicated admin portal flow
+- Added admin user creation
+- Added ticket history tracking
+- Added status transition restrictions
+- Added status and category badge styling
+- Added smoke testing for core functionality
+
+---
+
+## 📌 Project Status
+
+Current state: **Testing-ready**
+
+Next recommended steps:
+
+1. Commit this version into `main`.
+2. Have team members pull and test locally.
+3. Create final feature documentation.
+4. Add screenshots to this README after final UI approval.
+5. Prepare presentation/demo notes.
 

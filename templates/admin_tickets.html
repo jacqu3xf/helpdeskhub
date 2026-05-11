@@ -55,8 +55,8 @@
           <tr>
             <td>#{{ t.id }}</td>
             <td><a href="{{ url_for('ticket_detail', ticket_id=t.id) }}">{{ t.title }}</a></td>
-            <td>{{ t.status }}</td>
-            <td>{{ t.priority }}</td>
+            <td><span class="badge {{ status_badge_class(t.status) }}">{{ t.status }}</span></td>
+            <td><span class="badge priority-badge priority-{{ t.priority|lower }}">{{ t.priority }}</span></td>
             <td>{{ t.creator.name }}</td>
             <td>{{ t.assignee.name if t.assignee else 'Unassigned' }}</td>
             <td>{{ t.created_at.strftime("%Y-%m-%d %H:%M") }}</td>

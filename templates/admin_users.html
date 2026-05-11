@@ -3,13 +3,43 @@
 <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
   <div>
     <h2 class="m-0">User Management</h2>
-    <p class="text-muted mb-0">Promote users to rep/admin or revert access when needed.</p>
+    <p class="text-muted mb-0">Create accounts, promote users to rep/admin, or revert access when needed.</p>
   </div>
   <a class="btn btn-outline-secondary" href="{{ url_for('admin_dashboard') }}">Back to Admin Portal</a>
 </div>
 
+<div class="card shadow-sm border-0 mb-4">
+  <div class="card-body">
+    <h5 class="card-title mb-3">Create User Account</h5>
+    <form method="post" class="row g-3 align-items-end">
+      {{ create_form.hidden_tag() }}
+      <input type="hidden" name="form_type" value="create">
+      <div class="col-md-3">
+        <label class="form-label">{{ create_form.name.label }}</label>
+        {{ create_form.name(class="form-control", placeholder="Full name") }}
+      </div>
+      <div class="col-md-3">
+        <label class="form-label">{{ create_form.email.label }}</label>
+        {{ create_form.email(class="form-control", placeholder="user@example.com") }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">{{ create_form.password.label }}</label>
+        {{ create_form.password(class="form-control", placeholder="Temporary password") }}
+      </div>
+      <div class="col-md-2">
+        <label class="form-label">{{ create_form.role.label }}</label>
+        {{ create_form.role(class="form-select") }}
+      </div>
+      <div class="col-md-2">
+        {{ create_form.submit(class="btn btn-success w-100") }}
+      </div>
+    </form>
+  </div>
+</div>
+
 <div class="card shadow-sm border-0">
   <div class="card-body">
+    <h5 class="card-title mb-3">Existing Users</h5>
     <div class="table-responsive">
       <table class="table align-middle mb-0">
         <thead>
@@ -29,6 +59,7 @@
             <td>
               <form method="post" class="d-flex gap-2 align-items-center flex-wrap">
                 {{ role_form.hidden_tag() }}
+                <input type="hidden" name="form_type" value="role">
                 <input type="hidden" name="user_id" value="{{ user.id }}">
                 <select class="form-select form-select-sm w-auto" name="role">
                   <option value="user" {% if user.role == 'user' %}selected{% endif %}>user</option>

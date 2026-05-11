@@ -50,8 +50,8 @@
             <span class="badge priority-badge priority-{{ t.priority|lower }} align-self-start">{{ t.priority }}</span>
           </div>
           <div class="d-flex gap-2 flex-wrap mb-3">
-            <span class="badge text-bg-secondary">{{ t.status }}</span>
-            <span class="badge text-bg-light border">{{ t.category }}</span>
+            <span class="badge {{ status_badge_class(t.status) }}">{{ t.status }}</span>
+            <span class="badge {{ category_badge_class(t.category) }}">{{ t.category }}</span>
             <span class="badge text-bg-light border">Assigned: {{ t.assignee.name if t.assignee else 'Unassigned' }}</span>
           </div>
           <div class="small text-muted">Created {{ t.created_at.strftime("%Y-%m-%d %H:%M") }}</div>

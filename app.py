@@ -1,31 +1,78 @@
+import os
 from flask import Flask, render_template, redirect, url_for, flash, request, abort
 from flask_login import LoginManager, login_user, login_required, logout_user, current_user
 from sqlalchemy import or_
+from sqlalchemy.exc import IntegrityError
 
-from models import db, User, Ticket, Comment, TicketHistory
+from models import db, User, Ticket, Comment, TicketHistory, STATUSES, PRIORITIES, ROLES
 from forms import RegisterForm, LoginForm, TicketForm, CommentForm, StatusForm, UserRoleForm, AdminCreateUserForm
 
 
 app = Flask(__name__)
 app.config["SECRET_KEY"] = "dev-change-me"
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///helpdeskhub.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get("HELPDESKHUB_DATABASE_URI", "sqlite:///helpdeskhub.db")
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
+# Keep CSRF enabled in normal app use. Tests can disable it by setting WTF_CSRF_ENABLED=False.
 db.init_app(app)
 
 login_manager = LoginManager()
 login_manager.login_view = "login"
 login_manager.init_app(app)
 
-# TRACKING COMMENT: status workflow kept from both repositories and preserved in one place.
 ALLOWED_TRANSITIONS = {
+    # Keep the workflow flexible, but prevent jumps that skip the normal support lifecycle.
     "New": {"Open", "In Progress"},
-    "Open": {"In Progress", "Waiting on User", "Resolved"},
-    "In Progress": {"Waiting on User", "Resolved"},
-    "Waiting on User": {"Open", "In Progress"},
-    "Resolved": {"Closed", "Open"},
-    "Closed": set(),
+    "Open": {"In Progress", "Waiting on User", "Resolved", "Closed"},
+    "In Progress": {"Open", "Waiting on User", "Resolved", "Closed"},
+    "Waiting on User": {"Open", "In Progress", "Resolved", "Closed"},
+    "Resolved": {"Open", "In Progress", "Closed"},
+    "Closed": {"Open"},
 }
+
+OPEN_STATUSES = ["New", "Open", "In Progress", "Waiting on User"]
+RESOLVED_STATUSES = ["Resolved", "Closed"]
+
+
+def _badge_token(value: str) -> str:
+    return "".join(ch for ch in (value or "").lower() if ch.isalnum())
+
+
+def status_badge_class(status: str) -> str:
+    return f"status-badge status-{_badge_token(status)}"
+
+
+def category_badge_class(category: str) -> str:
+    text = (category or "General").lower()
+    if "network" in text or "wifi" in text or "internet" in text:
+        category = "network"
+    elif "hardware" in text or "device" in text or "computer" in text or "laptop" in text:
+        category = "hardware"
+    elif "software" in text or "application" in text or "app" in text:
+        category = "software"
+    elif "email" in text or "outlook" in text or "mail" in text:
+        category = "email"
+    elif "account" in text or "login" in text or "password" in text or "access" in text:
+        category = "access"
+    elif "printer" in text or "print" in text or "scanner" in text or "scan" in text:
+        category = "printer"
+    elif "security" in text or "mfa" in text or "phishing" in text:
+        category = "security"
+    else:
+        category = "general"
+    return f"category-badge category-{category}"
+
+
+def allowed_status_choices(current_status: str):
+    allowed = list(ALLOWED_TRANSITIONS.get(current_status, set()))
+    ordered = [status for status in STATUSES if status == current_status or status in allowed]
+    return [(status, status) for status in ordered]
+
+
+app.jinja_env.globals.update(
+    status_badge_class=status_badge_class,
+    category_badge_class=category_badge_class,
+)
 
 
 @login_manager.user_loader
@@ -60,12 +107,61 @@ def can_update_ticket(ticket: Ticket) -> bool:
 
 
 def get_dashboard_counts(tickets):
-    status_counts = {}
-    priority_counts = {}
+    status_counts = {status: 0 for status in STATUSES}
+    priority_counts = {priority: 0 for priority in PRIORITIES}
     for ticket in tickets:
         status_counts[ticket.status] = status_counts.get(ticket.status, 0) + 1
         priority_counts[ticket.priority] = priority_counts.get(ticket.priority, 0) + 1
     return status_counts, priority_counts
+
+
+def seed_admin_users():
+    """Create default admin accounts safely.
+
+    This route may be run more than once during testing. The old version could
+    try to insert admin@admin.com again if SQLAlchemy autoflushed while checking
+    the legacy admin account. This version commits one seed user at a time and
+    treats existing users as valid instead of crashing on a unique email match.
+    """
+    seed_users = [
+        ("Primary Admin", "admin@admin.com", "admin123"),
+        ("Legacy Admin", "admin@example.com", "admin123"),
+    ]
+
+    for name, email, password in seed_users:
+        email = email.lower().strip()
+
+        with db.session.no_autoflush:
+            existing = User.query.filter(db.func.lower(User.email) == email).first()
+
+        if existing:
+            # Preserve the account, but make sure the seed admin still has admin rights.
+            if existing.role != "admin":
+                existing.role = "admin"
+                db.session.commit()
+            continue
+
+        user = User(name=name, email=email, role="admin")
+        user.set_password(password)
+        db.session.add(user)
+
+        try:
+            db.session.commit()
+        except IntegrityError:
+            # Another run/browser refresh may have already inserted the account.
+            db.session.rollback()
+
+
+def log_status_change(ticket: Ticket, old_status: str, new_status: str, note: str = None):
+    history = TicketHistory(
+        ticket_id=ticket.id,
+        user_id=current_user.id,
+        action="status_change",
+        old_status=old_status,
+        new_status=new_status,
+        note=note,
+    )
+    db.session.add(history)
 
 
 @app.route("/")
@@ -75,23 +171,9 @@ def index():
 
 @app.route("/init-db")
 def init_db():
+    db.session.rollback()
     db.create_all()
-
-    # TRACKING COMMENT: repo README now documents admin@admin.com, so the seed user matches that contract.
-    admin = User.query.filter_by(email="admin@admin.com").first()
-    if not admin:
-        admin = User(name="Primary Admin", email="admin@admin.com", role="admin")
-        admin.set_password("admin123")
-        db.session.add(admin)
-
-    # TRACKING COMMENT: keep backwards compatibility with earlier seeded admin account if it already existed.
-    legacy_admin = User.query.filter_by(email="admin@example.com").first()
-    if not legacy_admin:
-        legacy_admin = User(name="Legacy Admin", email="admin@example.com", role="admin")
-        legacy_admin.set_password("admin123")
-        db.session.add(legacy_admin)
-
-    db.session.commit()
+    seed_admin_users()
     flash("Database initialized. Default admin: admin@admin.com / admin123", "success")
     return redirect(url_for("index"))
 
@@ -132,13 +214,11 @@ def login():
         login_user(user)
         flash("Logged in.", "success")
 
-        # TRACKING COMMENT: admins get routed to a separate admin area instead of blending into the user UI.
         if user.role == "admin":
-            return redirect(url_for("admin_portal"))
-        elif user.role == "rep":
+            return redirect(url_for("admin_dashboard"))
+        if user.role == "rep":
             return redirect(url_for("tickets_queue"))
-        else:
-            return redirect(url_for("tickets_list"))
+        return redirect(url_for("tickets_list"))
 
     return render_template("login.html", form=form, title="User Login")
 
@@ -195,7 +275,7 @@ def tickets_list():
         tickets=tickets,
         query=query,
         status_filter=status_filter,
-        statuses=list(ALLOWED_TRANSITIONS.keys()),
+        statuses=STATUSES,
     )
 
 
@@ -228,19 +308,12 @@ def tickets_queue():
 
     view = request.args.get("view", "unassigned")
     if view == "mine":
-        tickets = (
-            Ticket.query.filter_by(assigned_to=current_user.id)
-            .order_by(Ticket.created_at.desc())
-            .all()
-        )
+        tickets = Ticket.query.filter_by(assigned_to=current_user.id).order_by(Ticket.created_at.desc()).all()
     elif view == "all":
         tickets = Ticket.query.order_by(Ticket.created_at.desc()).all()
     else:
-        tickets = (
-            Ticket.query.filter(Ticket.assigned_to.is_(None))
-            .order_by(Ticket.created_at.desc())
-            .all()
-        )
+        view = "unassigned"
+        tickets = Ticket.query.filter(Ticket.assigned_to.is_(None)).order_by(Ticket.created_at.desc()).all()
 
     unassigned_count = Ticket.query.filter(Ticket.assigned_to.is_(None)).count()
     mine_count = Ticket.query.filter_by(assigned_to=current_user.id).count()
@@ -265,7 +338,9 @@ def claim_ticket(ticket_id):
     if ticket.assigned_to is None:
         ticket.assigned_to = current_user.id
         if ticket.status == "New":
+            old_status = ticket.status
             ticket.status = "Open"
+            log_status_change(ticket, old_status, ticket.status, "Ticket claimed and opened.")
         db.session.commit()
         flash("Ticket claimed.", "success")
     else:
@@ -283,6 +358,7 @@ def ticket_detail(ticket_id):
 
     comment_form = CommentForm()
     status_form = StatusForm()
+    status_form.status.choices = allowed_status_choices(ticket.status)
     status_form.status.data = ticket.status
 
     if request.method == "POST":
@@ -308,7 +384,9 @@ def ticket_detail(ticket_id):
             if ticket.assigned_to is None:
                 ticket.assigned_to = current_user.id
                 if ticket.status == "New":
+                    old_status = ticket.status
                     ticket.status = "Open"
+                    log_status_change(ticket, old_status, ticket.status, "Ticket claimed and opened.")
                 db.session.commit()
                 flash("Ticket claimed.", "success")
             else:
@@ -318,22 +396,16 @@ def ticket_detail(ticket_id):
         if action == "status":
             if not can_update_ticket(ticket):
                 abort(403)
-            new_status = request.form.get("status")
+            new_status = request.form.get("status", "").strip()
             if new_status and new_status != ticket.status:
                 allowed = ALLOWED_TRANSITIONS.get(ticket.status, set())
                 if new_status not in allowed:
                     flash(f"Invalid transition: {ticket.status} → {new_status}", "danger")
                 else:
-                    # Log History - Updated
-                    history_comment = TicketHistory(
-                        ticket_id=ticket.id,
-                        old_status=old_status,
-                        new_status=new_status,
-                        user_id=current_user.id
-                    )
-                    db.session.add(history) 
+                    old_status = ticket.status
+                    ticket.status = new_status
+                    log_status_change(ticket, old_status, new_status)
                     db.session.commit()
-
                     flash(f"Status updated to {new_status}.", "success")
             return redirect(url_for("ticket_detail", ticket_id=ticket.id))
 
@@ -345,7 +417,7 @@ def ticket_detail(ticket_id):
         ticket=ticket,
         comment_form=comment_form,
         status_form=status_form,
-        history=ticket.status_history
+        history=ticket.status_history,
     )
 
 
@@ -355,11 +427,7 @@ def dashboard():
     if current_user.role in ["rep", "admin"]:
         tickets = Ticket.query.order_by(Ticket.created_at.desc()).all()
     else:
-        tickets = (
-            Ticket.query.filter_by(created_by=current_user.id)
-            .order_by(Ticket.created_at.desc())
-            .all()
-        )
+        tickets = Ticket.query.filter_by(created_by=current_user.id).order_by(Ticket.created_at.desc()).all()
 
     status_counts, priority_counts = get_dashboard_counts(tickets)
     return render_template(
@@ -380,8 +448,8 @@ def admin_dashboard():
     status_counts, priority_counts = get_dashboard_counts(tickets)
     stats = {
         "total_tickets": len(tickets),
-        "open_tickets": sum(1 for t in tickets if t.status in ["New", "Open", "In Progress", "Waiting on User"]),
-        "resolved_tickets": sum(1 for t in tickets if t.status in ["Resolved", "Closed"]),
+        "open_tickets": sum(1 for t in tickets if t.status in OPEN_STATUSES),
+        "resolved_tickets": sum(1 for t in tickets if t.status in RESOLVED_STATUSES),
         "total_users": len(users),
         "staff_users": sum(1 for u in users if u.role in ["rep", "admin"]),
         "unassigned_tickets": sum(1 for t in tickets if t.assigned_to is None),
@@ -402,19 +470,36 @@ def admin_users():
     admin_required()
     users = User.query.order_by(User.role.desc(), User.name.asc()).all()
     role_form = UserRoleForm()
+    create_form = AdminCreateUserForm(prefix="create")
 
-    if role_form.validate_on_submit():
-        target = User.query.get_or_404(int(role_form.user_id.data))
-        if target.id == current_user.id and role_form.role.data != "admin":
-            flash("You cannot remove your own admin access.", "danger")
+    if request.method == "POST":
+        form_type = request.form.get("form_type", "role")
+
+        if form_type == "create" and create_form.validate_on_submit():
+            email = create_form.email.data.lower().strip()
+            if User.query.filter_by(email=email).first():
+                flash("A user with that email already exists.", "danger")
+                return redirect(url_for("admin_users"))
+
+            user = User(name=create_form.name.data.strip(), email=email, role=create_form.role.data)
+            user.set_password(create_form.password.data)
+            db.session.add(user)
+            db.session.commit()
+            flash(f"Created user {user.name}.", "success")
             return redirect(url_for("admin_users"))
 
-        target.role = role_form.role.data
-        db.session.commit()
-        flash(f"Updated role for {target.name}.", "success")
-        return redirect(url_for("admin_users"))
+        if form_type == "role" and role_form.validate_on_submit():
+            target = User.query.get_or_404(int(role_form.user_id.data))
+            if target.id == current_user.id and role_form.role.data != "admin":
+                flash("You cannot remove your own admin access.", "danger")
+                return redirect(url_for("admin_users"))
 
-    return render_template("admin_users.html", users=users, role_form=role_form)
+            target.role = role_form.role.data
+            db.session.commit()
+            flash(f"Updated role for {target.name}.", "success")
+            return redirect(url_for("admin_users"))
+
+    return render_template("admin_users.html", users=users, role_form=role_form, create_form=create_form)
 
 
 @app.route("/admin/tickets")
@@ -436,40 +521,14 @@ def admin_tickets():
         tickets=tickets,
         status_filter=status_filter,
         priority_filter=priority_filter,
-        statuses=list(ALLOWED_TRANSITIONS.keys()),
-        priorities=["Low", "Medium", "High", "Urgent"],
+        statuses=STATUSES,
+        priorities=PRIORITIES,
     )
-
-
-@app.route("/admin/create-user", methods=["GET", "POST"])
-@login_required
-def admin_create_user():
-    admin_required()
-
-    form = AdminCreateUserForm()
-
-    if form.validate_on_submit():
-        user = User(
-            name=form.name.data.strip(),
-            email=form.email.data.lower().strip(),
-            role=form.role.data
-        )
-        user.set_password(form.password.data)
-
-        db.session.add(user)
-        db.session.commit()
-
-        flash("User created successfully.", "success")
-        return redirect(url_for("admin_dashboard"))
-    return render_template("admin_users.html", form=form)
 
 
 @app.errorhandler(403)
 def forbidden(error):
-    return (
-        render_template("index.html", error="403 Forbidden: You do not have access to that page."),
-        403,
-    )
+    return render_template("index.html", error="403 Forbidden: You do not have access to that page."), 403
 
 
 if __name__ == "__main__":
