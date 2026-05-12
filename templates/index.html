@@ -9,9 +9,9 @@
         This version combines both repositories, keeps the app in Flask/Bootstrap, and separates the admin experience from the general end-user UI.
       </p>
       <div class="d-flex gap-2 flex-wrap">
-        <a class="btn btn-primary" href="{{ url_for('init_db') }}">Initialize Database</a>
-        <a class="btn btn-outline-primary" href="{{ url_for('register') }}">Create User Account</a>
-        <a class="btn btn-outline-info" href="{{ url_for('admin_login') }}">Open Admin Portal</a>
+        <a class="btn btn-primary" href="{{ url_for('register') }}">Get Started</a>
+        <a class="btn btn-outline-primary" href="{{ url_for('login') }}">Sign In</a>
+        <a class="btn btn-outline-info" href="{{ url_for('admin_login') }}">Admin Portal</a>
       </div>
     </div>
     <div class="col-lg-4">
@@ -29,30 +29,43 @@
   </div>
 </section>
 
+<div class="text-center text-muted small fw-semibold text-uppercase letter-spacing mb-3 mt-2">
+  Everything you need to manage support
+</div>
 <div class="row g-3">
   <div class="col-md-4">
     <div class="card h-100 shadow-sm">
       <div class="card-body">
-        <h5 class="card-title">End-user improvements</h5>
-        <p class="card-text text-muted">Users now get a dashboard, searchable ticket list, clearer create-ticket flow, and more readable ticket details.</p>
-      </div>
+     <div class="d-flex align-items-center gap-2 mb-2">
+    <div class="fs-3">🎫</div>
+  </div>
+  <h5 class="card-title">User Ticketing</h5>
+  <p class="card-text text-muted">Submit tickets, track progress, and communicate with support — all from a clean, simple dashboard.</p>
+</div>
+    </div>
+  </div>
+    <div class="col-md-4">
+      <div class="card h-100 shadow-sm">
+        <div class="card-body">
+        <div class="d-flex align-items-center gap-2 mb-2">
+      <div class="fs-3">📋</div>
+    </div>
+  <h5 class="card-title">Rep Queue</h5>
+  <p class="card-text text-muted">Claim tickets, track your workload, and resolve issues faster with a card-based queue and one-click actions.</p>
+</div>
     </div>
   </div>
   <div class="col-md-4">
     <div class="card h-100 shadow-sm">
       <div class="card-body">
-        <h5 class="card-title">Rep queue upgrades</h5>
-        <p class="card-text text-muted">The queue now includes counters, card-based browsing, and one-click claim actions while preserving your existing ticket workflow.</p>
-      </div>
-    </div>
+  <div class="d-flex align-items-center gap-2 mb-2">
+    <div class="fs-3">🛡️</div>
   </div>
-  <div class="col-md-4">
-    <div class="card h-100 shadow-sm">
-      <div class="card-body">
-        <h5 class="card-title">Separated admin area</h5>
-        <p class="card-text text-muted">Admins get their own portal with system stats, role management, and global ticket oversight instead of sharing the same user-facing navigation.</p>
-      </div>
+  <h5 class="card-title">Admin Control</h5>
+  <p class="card-text text-muted">Manage users, assign roles, and get full system oversight from a dedicated admin portal.</p>
+</div>
     </div>
   </div>
 </div>
+
 {% endblock %}
