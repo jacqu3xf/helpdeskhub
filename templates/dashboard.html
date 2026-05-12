@@ -10,37 +10,30 @@
 
 <div class="row g-3 mb-4">
   <div class="col-md-3">
-    <div class="card shadow-sm h-100 border-0">
-      <div class="card-body">
-        <div class="small text-muted">Total Tickets</div>
-        <div class="display-6 fw-bold">{{ tickets | length }}</div>
-      </div>
+    <div class="stat-card stat-blue h-100">
+      <div class="stat-label">Total Tickets</div>
+      <div class="stat-number">{{ tickets | length }}</div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card shadow-sm h-100 border-0">
-      <div class="card-body">
-        <div class="small text-muted">Open</div>
-        <div class="display-6 fw-bold">{{ status_counts.get('Open', 0) + status_counts.get('New', 0) }}</div>
-      </div>
+    <div class="stat-card stat-amber h-100">
+      <div class="stat-label">Open</div>
+      <div class="stat-number">{{ status_counts.get('Open', 0) + status_counts.get('New', 0) }}</div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card shadow-sm h-100 border-0">
-      <div class="card-body">
-        <div class="small text-muted">In Progress</div>
-        <div class="display-6 fw-bold">{{ status_counts.get('In Progress', 0) }}</div>
-      </div>
+    <div class="stat-card stat-cyan h-100">
+      <div class="stat-label">In Progress</div>
+      <div class="stat-number">{{ status_counts.get('In Progress', 0) }}</div>
     </div>
   </div>
   <div class="col-md-3">
-    <div class="card shadow-sm h-100 border-0">
-      <div class="card-body">
-        <div class="small text-muted">Resolved</div>
-        <div class="display-6 fw-bold">{{ status_counts.get('Resolved', 0) + status_counts.get('Closed', 0) }}</div>
-      </div>
+    <div class="stat-card stat-green h-100">
+      <div class="stat-label">Resolved</div>
+      <div class="stat-number">{{ status_counts.get('Resolved', 0) + status_counts.get('Closed', 0) }}</div>
     </div>
   </div>
+
 </div>
 
 <div class="row g-4">
@@ -67,7 +60,7 @@
   <div class="card-body">
     <h5 class="card-title">Recent Activity</h5>
     <div class="table-responsive">
-      <table class="table align-middle mb-0">
+      <table class="table table-striped align-middle mb-0">
         <thead>
           <tr>
             <th>ID</th>
@@ -83,7 +76,7 @@
             <td>#{{ t.id }}</td>
             <td><a href="{{ url_for('ticket_detail', ticket_id=t.id) }}">{{ t.title }}</a></td>
             <td><span class="badge {{ status_badge_class(t.status) }}">{{ t.status }}</span></td>
-            <td>{{ t.priority }}</td>
+            <td><span class="badge priority-badge priority-{{ t.priority|lower }}">{{ t.priority }}</span></td>
             <td>{{ t.assignee.name if t.assignee else 'Unassigned' }}</td>
           </tr>
           {% endfor %}
@@ -96,16 +89,42 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
+  const statusColorMap = {
+    "New":             "#ef4444",
+    "Open":            "#f59e0b",
+    "In Progress":     "#3b82f6",
+    "Waiting on User": "#10b981",
+    "Resolved":        "#8b5cf6",
+    "Closed":          "#0f172a"
+  };
+
   const statusLabels = {{ status_counts.keys() | list | tojson }};
   const statusData = {{ status_counts.values() | list | tojson }};
   new Chart(document.getElementById("statusChart"), {
     type: "bar",
     data: {
       labels: statusLabels,
-      datasets: [{ label: "Tickets", data: statusData }]
+      datasets: [{
+        label: "Tickets",
+        data: statusData,
+        backgroundColor: statusLabels.map(l => statusColorMap[l] || "#2563eb"),
+        borderRadius: 6,
+        borderSkipped: false
+      }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
   });
+
+  const priorityColorMap = {
+    "Low":    "#10b981",
+    "Medium": "#3b82f6",
+    "High":   "#f59e0b",
+    "Urgent": "#ef4444"
+  };
 
   const priorityLabels = {{ priority_counts.keys() | list | tojson }};
   const priorityData = {{ priority_counts.values() | list | tojson }};
@@ -113,9 +132,19 @@
     type: "bar",
     data: {
       labels: priorityLabels,
-      datasets: [{ label: "Tickets", data: priorityData }]
+      datasets: [{
+        label: "Tickets",
+        data: priorityData,
+        backgroundColor: priorityLabels.map(l => priorityColorMap[l] || "#2563eb"),
+        borderRadius: 6,
+        borderSkipped: false
+      }]
     },
-    options: { responsive: true, plugins: { legend: { display: false } } }
+    options: {
+      responsive: true,
+      plugins: { legend: { display: false } },
+      scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
   });
 </script>
 {% endblock %}
