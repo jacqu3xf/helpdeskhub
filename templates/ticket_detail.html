@@ -1,5 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
+<nav aria-label="breadcrumb" class="mb-3">
+  <ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Home</a></li>
+    <li class="breadcrumb-item"><a href="{{ url_for('tickets_list') }}">Tickets</a></li>
+    <li class="breadcrumb-item active" aria-current="page">Ticket #{{ ticket.id }}</li>
+  </ol>
+</nav>
 <div class="d-flex flex-wrap justify-content-between align-items-start gap-3 mb-3">
   <div>
     <div class="small text-muted mb-1">Ticket #{{ ticket.id }}</div>
@@ -66,8 +73,16 @@
       <form method="post">
         {{ comment_form.hidden_tag() }}
         <input type="hidden" name="action" value="comment">
-        {{ comment_form.body(class="form-control mb-3", rows="4", placeholder="Add troubleshooting notes, updates, or responses.") }}
-        {{ comment_form.submit(class="btn btn-outline-primary w-100") }}
+        {{ comment_form.body(class="form-control mb-2", rows="4", placeholder="Add troubleshooting notes, updates, or responses.") }}
+<div class="form-text text-end mb-3"><span id="commentCount">0</span> characters</div>
+
+<script>
+  const commentInput = document.querySelector('textarea[name="body"]');
+  const commentCount = document.getElementById('commentCount');
+  commentInput.addEventListener('input', () => {
+    commentCount.textContent = commentInput.value.length;
+  });
+</script>
       </form>
     </div>
 

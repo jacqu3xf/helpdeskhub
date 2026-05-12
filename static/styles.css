@@ -35,6 +35,7 @@
 
 /**/
 *, *::before, *::after { box-sizing: border-box; }
+html { scroll-behavior: smooth;}
  
 body {
   font-family: var(--font);
@@ -66,9 +67,13 @@ a:hover { text-decoration: underline; }
 /* ----- Navigation Bar-----*/
 .navbar {
   background: #0f172a !important;
-  height: var(--nav-height);
+  min-height: var(--nav-height);
   border-bottom: 1px solid rgba(255,255,255,.06);
   box-shadow: 0 2px 12px rgba(0,0,0,.18);
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  flex-wrap: wrap;
 }
  
 .navbar-brand {
@@ -173,6 +178,11 @@ a:hover { text-decoration: underline; }
   transition: all .18s ease;
   font-size: 0.88rem;
 }
+
+.btn:focus-visible {
+  outline: 3px solid var(--brand);
+  outline-offset: 3px;
+}
  
 .btn-primary {
   background: var(--brand);
@@ -263,12 +273,6 @@ textarea.form-control { min-height: 110px; resize: vertical; }
 }
  
 /*----- Status ----- */
-.badge-status-new            { background: #ef4444; color: #fff; }
-.badge-status-open           { background: #f59e0b; color: #fff; }
-.badge-status-inprogress     { background: #3b82f6; color: #fff; }
-.badge-status-waitingonuser  { background: #10b981; color: #fff; }
-.badge-status-resolved       { background: #8b5cf6; color: #fff; }
-.badge-status-closed         { background: #000; color: #fff; }
  
 /*---- Priority ----*/
 .badge-priority-low    { background: #d1fae5; color: #065f46; }
@@ -449,6 +453,36 @@ textarea.form-control { min-height: 110px; resize: vertical; }
   margin-bottom: 1.5rem;
 }
  
+/* ---- Back to the Top ---- */
+#backToTop {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 999;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: var(--brand);
+  color: #fff;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .25s ease, transform .25s ease;
+  box-shadow: var(--shadow);
+}
+
+#backToTop.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+#backToTop:hover {
+  background: var(--brand-dark);
+  transform: translateY(-2px);
+}
+
 /* --- Footer (if added later) */
 footer {
   background: #0f172a;
@@ -465,6 +499,9 @@ footer {
   .page-header { flex-direction: column; align-items: flex-start; gap: 10px; }
   .auth-card { margin: 1.5rem auto; padding: 1.5rem; }
   .stat-card .stat-number { font-size: 1.8rem; }
+  .table-responsive { border-radius: 8px; -webkit-overflow-scrolling: touch; }
+  .table thead th { font-size: 0.72rem; padding: 10px 10px; }
+  .table tbody td { padding: 10px 10px; font-size: 0.85rem; }
 }
  
 @keyframes fadeInUp {
@@ -509,6 +546,7 @@ main.container { animation: fadeInUp .3s ease both; }
 
 .summary-card {
   border: 1px solid var(--border);
+  border-left-width: 4px;
   transition: transform .15s ease, box-shadow .15s ease, border-color .15s ease;
 }
 
@@ -558,12 +596,6 @@ main.container { animation: fadeInUp .3s ease both; }
   padding: .5rem .75rem;
   font-weight: 700;
 }
-.status-new { background: #ef4444; color: #fff; }
-.status-open { background: #f59e0b; color: #fff; }
-.status-inprogress { background: #3b82f6; color: #fff; }
-.status-waitingonuser { background: #10b981; color: #fff; }
-.status-resolved { background: #8b5cf6; color: #fff; }
-.status-closed { background: #000; color: #fff; }
 
 /* Category badges mirror the visual clarity of priority/status badges */
 .category-badge {
